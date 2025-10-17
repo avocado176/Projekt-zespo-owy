@@ -63,3 +63,5 @@ project/
 [Roman Drohomyretskyi 66719]
 
 
+Text do testowania PR
+
