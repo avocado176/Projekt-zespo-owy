@@ -95,12 +95,36 @@
             margin: 5px 0;
             color: #555;
         }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .button-group button {
+            width: auto;
+            flex: 1;
+        }
+        .edit-btn {
+            background: #f39c12 !important;
+        }
+        .edit-btn:hover {
+            background: #e67e22 !important;
+        }
         .delete-btn {
-            background: #e74c3c;
-            margin-top: 10px;
+            background: #e74c3c !important;
         }
         .delete-btn:hover {
-            background: #c0392b;
+            background: #c0392b !important;
+        }
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .cancel-btn {
+            background: #95a5a6 !important;
+        }
+        .cancel-btn:hover {
+            background: #7f8c8d !important;
         }
     </style>
 </head>
@@ -132,14 +156,17 @@
                     <input type="date" id="registrationDate">
                 </div>
                 <div class="form-group">
-                    <label for="mileage">Przebieg:</label>
+                    <label for="mileage">Przebieg (km):</label>
                     <input type="number" id="mileage" placeholder="50000" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="fuelType">Rodzaj paliwa:</label>
                     <input type="text" id="fuelType" placeholder="Na przykład: Diesel" required>
                 </div>
-                <button type="submit">➕ Dodaj samochód</button>
+                <div class="form-buttons">
+                    <button type="submit">➕ Dodaj samochód</button>
+                    <button type="button" class="cancel-btn" onclick="resetForm()">❌ Anuluj</button>
+                </div>
             </form>
         </div>
 
@@ -154,4 +181,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
