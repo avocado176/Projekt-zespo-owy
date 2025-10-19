@@ -35,7 +35,9 @@ CREATE TABLE cars (
   model VARCHAR(100),
   year INT,
   price DECIMAL(10,2),
-  registrationDate DATE
+  registrationDate DATE,
+  mileage INT,
+  fuelType VARCHAR(50)
 );
 ```
 
