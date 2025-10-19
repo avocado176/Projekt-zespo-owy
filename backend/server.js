@@ -42,16 +42,16 @@ app.listen(3000, () => {
 
 // Dodaj nowy samochód - POST
 app.post('/cars', (req, res) => {
-  const { brand, model, year, price, registrationDate } = req.body;
+  const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
   
   // Walidacja (zgodnie z wymaganiami walidacji)
-  if (!brand || !model || !year) {
-    return res.status(400).json({ error: 'Marka, model i rok są wymagane' });
+  if (!brand || !model || !year || !mileage || !fuelType) {
+    return res.status(400).json({ error: 'Marka, model, rok, przebieg i typ paliwa są wymagane' });
   }
 
-  const sql = 'INSERT INTO cars (brand, model, year, price, registrationDate) VALUES (?, ?, ?, ?, ?)';
+  const sql = 'INSERT INTO cars (brand, model, year, price, registrationDate, mileage, fuelType) VALUES (?, ?, ?, ?, ?, ?, ?)';
   
-  db.query(sql, [brand, model, year, price, registrationDate], (err, result) => {
+  db.query(sql, [brand, model, year, price, registrationDate, mileage, fuelType], (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
@@ -59,7 +59,7 @@ app.post('/cars', (req, res) => {
     res.status(201).json({ 
       id: result.insertId, 
       message: 'Samochód dodano pomyślnie!',
-      car: { id: result.insertId, brand, model, year, price, registrationDate }
+      car: { id: result.insertId, brand, model, year, price, registrationDate, mileage, fuelType }
     });
   });
 });
@@ -67,11 +67,11 @@ app.post('/cars', (req, res) => {
 // Zaktualizuj samochód - PUT
 app.put('/cars/:id', (req, res) => {
   const carId = req.params.id;
-  const { brand, model, year, price, registrationDate } = req.body;
+  const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
 
-  const sql = 'UPDATE cars SET brand=?, model=?, year=?, price=?, registrationDate=? WHERE id=?';
+  const sql = 'UPDATE cars SET brand=?, model=?, year=?, price=?, registrationDate=?, mileage=?, fuelType=? WHERE id=?';
   
-  db.query(sql, [brand, model, year, price, registrationDate, carId], (err, result) => {
+  db.query(sql, [brand, model, year, price, registrationDate, mileage, fuelType, carId], (err, result) => {
     if (err) {
       res.status(500).json({ error: err.message });
       return;
