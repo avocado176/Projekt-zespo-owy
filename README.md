@@ -36,8 +36,8 @@ CREATE TABLE cars (
   year INT,
   price DECIMAL(10,2),
   registrationDate DATE,
-  mileage INT,
-  fuelType VARCHAR(50)
+  mileage INT NOT NULL,
+  fuelType VARCHAR(50) NOT NULL
 );
 ```
 
