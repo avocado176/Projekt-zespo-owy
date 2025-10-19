@@ -27,6 +27,8 @@ function displayCars(cars) {
             <p><strong>Rok:</strong> ${car.year}</p>
             <p><strong>Cena:</strong> $${car.price || 'Nie podano'}</p>
             <p><strong>Rejestracja:</strong> ${car.registrationDate ? new Date(car.registrationDate).toLocaleDateString('pl-PL') : 'Nie podano'}</p>
+            <p><strong>Przebieg:</strong> ${car.mileage}</p>
+            <p><strong>Rodzaj paliwa:</strong> ${car.fuelType}</p>
             <p><strong>ID:</strong> ${car.id}</p>
             <button class="delete-btn" onclick="deleteCar(${car.id})">🗑️ Usuń</button>
         </div>
@@ -43,12 +45,14 @@ document.getElementById('carForm').addEventListener('submit', async (e) => {
         model: document.getElementById('model').value.trim(),
         year: parseInt(document.getElementById('year').value),
         price: document.getElementById('price').value ? parseFloat(document.getElementById('price').value) : null,
-        registrationDate: document.getElementById('registrationDate').value || null
+        registrationDate: document.getElementById('registrationDate').value || null,
+        mileage: parseInt(document.getElementById('mileage').value),
+        fuelType: document.getElementById('fuelType').value.trim()
     };
 
     // Walidacja
-    if (!carData.brand || !carData.model || !carData.year) {
-        showError('Proszę wypełnić obowiązkowe pola: marka, model i rok');
+    if (!carData.brand || !carData.model || !carData.year || !carData.mileage || !carData.fuelType) {
+        showError('Proszę wypełnić obowiązkowe pola: marka, model, rok, przebieg, typ paliwa');
         return;
     }
 
@@ -127,3 +131,4 @@ document.addEventListener('DOMContentLoaded', function() {
     loadCars();
     console.log('Car Management System załadowany');
 });
+
