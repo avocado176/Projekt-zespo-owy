@@ -36,8 +36,21 @@ app.get('/cars', (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log('🚀 Serwer działa na http://localhost:3000');
+// Pobierz jeden samochód po ID
+app.get('/cars/:id', (req, res) => {
+  const carId = req.params.id;
+  const sql = 'SELECT * FROM cars WHERE id = ?';
+  
+  db.query(sql, [carId], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Samochód nie znaleziony' });
+    }
+    res.json(results[0]);
+  });
 });
 
 // Dodaj nowy samochód - POST
@@ -98,4 +111,8 @@ app.delete('/cars/:id', (req, res) => {
     }
     res.json({ message: 'Samochód usunięto pomyślnie!' });
   });
+});
+
+app.listen(3000, () => {
+  console.log('🚀 Serwer działa na http://localhost:3000');
 });
