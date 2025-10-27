@@ -8,21 +8,22 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Підключення до БД - Railway налаштує автоматично
+// Підключення до БД - Render налаштує автоматично
 const db = mysql.createConnection({
-  host: process.env.MYSQLHOST || 'localhost',
-  user: process.env.MYSQLUSER || 'root',
-  password: process.env.MYSQLPASSWORD || '',
-  database: process.env.MYSQLDATABASE || 'cars_db',
-  port: process.env.MYSQLPORT || 3306
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'cars_db',
+  port: process.env.DB_PORT || 5432  // PostgreSQL порт
 });
 
 db.connect((err) => {
   if (err) {
-    console.log('Помилка підключення до БД:', err);
-    return;
+    console.log('❌ Помилка підключення до БД:', err.message);
+    console.log('⚠️  Додаток працюватиме без бази даних');
+  } else {
+    console.log('✅ Підключено до бази даних!');
   }
-  console.log('✅ Підключено до MySQL!');
 });
 
 // Статичні файли
@@ -30,19 +31,24 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Решта вашого коду залишається без змін:
+// API тест
 app.get('/api', (req, res) => {
   res.json({ message: '🚗 Car API працює!' });
 });
 
+// Отримати всі автомобілі
 app.get('/api/cars', (req, res) => {
   const sql = 'SELECT * FROM cars';
   db.query(sql, (err, results) => {
-    if (err) throw err;
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
     res.json(results);
   });
 });
 
+// Отримати один автомобіль по ID
 app.get('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const sql = 'SELECT * FROM cars WHERE id = ?';
@@ -59,6 +65,7 @@ app.get('/api/cars/:id', (req, res) => {
   });
 });
 
+// Додати новий автомобіль
 app.post('/api/cars', (req, res) => {
   const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
   
@@ -81,6 +88,7 @@ app.post('/api/cars', (req, res) => {
   });
 });
 
+// Оновити автомобіль
 app.put('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
@@ -99,6 +107,7 @@ app.put('/api/cars/:id', (req, res) => {
   });
 });
 
+// Видалити автомобіль
 app.delete('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const sql = 'DELETE FROM cars WHERE id=?';
@@ -116,6 +125,6 @@ app.delete('/api/cars/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Сервер працює на порті ${PORT}`);
 });
