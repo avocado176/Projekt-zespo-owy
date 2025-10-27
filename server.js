@@ -1,34 +1,41 @@
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Połączenie z bazą danych
+// Підключення до БД - Railway налаштує автоматично
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'cars_db'
+  host: process.env.MYSQLHOST || 'localhost',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || '',
+  database: process.env.MYSQLDATABASE || 'cars_db',
+  port: process.env.MYSQLPORT || 3306
 });
 
 db.connect((err) => {
   if (err) {
-    console.log('Błąd połączenia z bazą danych:', err);
+    console.log('Помилка підключення до БД:', err);
     return;
   }
-  console.log('✅ Połączono z MySQL!');
+  console.log('✅ Підключено до MySQL!');
 });
 
-// Trasa testowa
+// Статичні файли
 app.get('/', (req, res) => {
-  res.json({ message: '🚗 Car API działa!' });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Pobierz wszystkie samochody
-app.get('/cars', (req, res) => {
+// Решта вашого коду залишається без змін:
+app.get('/api', (req, res) => {
+  res.json({ message: '🚗 Car API працює!' });
+});
+
+app.get('/api/cars', (req, res) => {
   const sql = 'SELECT * FROM cars';
   db.query(sql, (err, results) => {
     if (err) throw err;
@@ -36,8 +43,7 @@ app.get('/cars', (req, res) => {
   });
 });
 
-// Pobierz jeden samochód po ID
-app.get('/cars/:id', (req, res) => {
+app.get('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const sql = 'SELECT * FROM cars WHERE id = ?';
   
@@ -47,19 +53,17 @@ app.get('/cars/:id', (req, res) => {
       return;
     }
     if (results.length === 0) {
-      return res.status(404).json({ error: 'Samochód nie znaleziony' });
+      return res.status(404).json({ error: 'Автомобіль не знайдено' });
     }
     res.json(results[0]);
   });
 });
 
-// Dodaj nowy samochód - POST
-app.post('/cars', (req, res) => {
+app.post('/api/cars', (req, res) => {
   const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
   
-  // Walidacja (zgodnie z wymaganiami walidacji)
   if (!brand || !model || !year || !mileage || !fuelType) {
-    return res.status(400).json({ error: 'Marka, model, rok, przebieg i typ paliwa są wymagane' });
+    return res.status(400).json({ error: 'Марка, модель, рік, пробіг та тип палива обовʼязкові' });
   }
 
   const sql = 'INSERT INTO cars (brand, model, year, price, registrationDate, mileage, fuelType) VALUES (?, ?, ?, ?, ?, ?, ?)';
@@ -71,14 +75,13 @@ app.post('/cars', (req, res) => {
     }
     res.status(201).json({ 
       id: result.insertId, 
-      message: 'Samochód dodano pomyślnie!',
+      message: 'Автомобіль додано успішно!',
       car: { id: result.insertId, brand, model, year, price, registrationDate, mileage, fuelType }
     });
   });
 });
 
-// Zaktualizuj samochód - PUT
-app.put('/cars/:id', (req, res) => {
+app.put('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const { brand, model, year, price, registrationDate, mileage, fuelType } = req.body;
 
@@ -90,14 +93,13 @@ app.put('/cars/:id', (req, res) => {
       return;
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Samochód nie znaleziony' });
+      return res.status(404).json({ error: 'Автомобіль не знайдено' });
     }
-    res.json({ message: 'Samochód zaktualizowano pomyślnie!' });
+    res.json({ message: 'Автомобіль оновлено успішно!' });
   });
 });
 
-// Usuń samochód - DELETE
-app.delete('/cars/:id', (req, res) => {
+app.delete('/api/cars/:id', (req, res) => {
   const carId = req.params.id;
   const sql = 'DELETE FROM cars WHERE id=?';
   
@@ -107,12 +109,13 @@ app.delete('/cars/:id', (req, res) => {
       return;
     }
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Samochód nie znaleziony' });
+      return res.status(404).json({ error: 'Автомобіль не знайдено' });
     }
-    res.json({ message: 'Samochód usunięto pomyślnie!' });
+    res.json({ message: 'Автомобіль видалено успішно!' });
   });
 });
 
-app.listen(3000, () => {
-  console.log('🚀 Serwer działa na http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Сервер працює на порті ${PORT}`);
 });
