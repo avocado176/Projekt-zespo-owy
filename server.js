@@ -2,6 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config(); // ← ДОДАЙ ЦЕ
 
 const app = express();
 app.use(cors());
@@ -17,7 +18,11 @@ function connectToDatabase() {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'cars_db',
-    port: process.env.DB_PORT || 5432
+    port: process.env.DB_PORT || 5432,
+    ssl: { rejectUnauthorized: false }, // ← ДОДАЙ ЦЕ
+    connectTimeout: 60000,
+    acquireTimeout: 60000,
+    timeout: 60000
   });
 
   db.connect((err) => {
